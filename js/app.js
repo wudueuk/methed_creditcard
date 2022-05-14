@@ -5,9 +5,19 @@ import {
 import creditcard from './modules/creditcard.js';
 import form from './modules/form.js';
 import mask from './modules/mask.js';
+import {
+  validateHolder,
+  validateNumber,
+  validateCVV
+} from './modules/validate.js';
 
 const pageTitle = el('div.payment-title', el('h1', 'Payment Information'));
 const container = el('div.container');
+const submitBtn = el('button', {
+  type: 'submit',
+  name: 'submit',
+}, 'Отправить');
+form.append(submitBtn);
 
 setChildren(container, creditcard);
 setChildren(document.body, [pageTitle, container, form]);
@@ -19,7 +29,6 @@ const cardnumberMask = IMask(cardnumber, {
   lazy: true,
   maxLength: 16,
 });
-//cardnumberMask.on('complete');
 const expirationdate = document.getElementById('expirationdate');
 new IMask(expirationdate, {
   mask: 'MM/YY',
@@ -35,7 +44,7 @@ new IMask(expirationdate, {
       from: 1,
       to: 12
     },
-  }
+  },
 });
 
 const securitycode = document.getElementById('securitycode');
@@ -97,4 +106,15 @@ cardnumber.addEventListener('input', () => {
     ccicon.innerHTML = '';
   }
   svgnumber.textContent = value;
+});
+
+submitBtn.addEventListener('click', e => {
+  e.preventDefault();
+
+  const validateMessage = el('h2.payment-title');
+  if (validateHolder(name.value) && validateNumber(cardnumber.value) && validateCVV(securitycode.value)) {
+    validateMessage.textContent = 'Данные введены верно';
+  } else validateMessage.textContent = 'Данные введены неверно';
+
+  document.body.append(validateMessage);
 });
